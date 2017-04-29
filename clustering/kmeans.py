@@ -159,6 +159,7 @@ class Kmeans(object):
                 Ds[i] = np.array([distance.euclidian(X[:, i], c) for c in Cent]).min()**2
             # choose a point at random given the probability distribution Dsquared
             # and define as our new center
+            Ds = Ds/float(np.sum(Ds))
             Cent.append(X[:, np.random.choice(range(0, self.n), p=Ds)])
         self.Cent = Cent
         self.has_init = True
