@@ -14,7 +14,6 @@ class Kmeans(object):
             - K:
                 - the number of clusters.
         """
-        self.tol = tol
         self.K = K
         self.max_iter = max_iter
         self.has_fit = False
@@ -47,6 +46,7 @@ class Kmeans(object):
         converged = False
 
         # we will need these a bunch, so might as well get them locally
+        X = self.X
         max_iter = self.max_iter
         Cent = self.Cent
         n = self.n
@@ -55,17 +55,19 @@ class Kmeans(object):
         # for tracking the progress of our algorithm
         niter = 0
         dist = np.zeros(max_iter)
+        dist[niter] = np.sum(self.__get_dists__(X, Cent)**2)
+        niter += 1
         while not converged and niter < max_iter:
             # expectation step
             # assigned cluster center is the closest center for each point
             assignment = self.__get_assignments__(X, Cent)
 
             # maximization step
-            Cent = [X[:, assignment == c].mean(axis=1) for c in range(0, len(K))]
+            Cent = [X[:, assignment == c].mean(axis=1) for c in range(0, K)]
 
             # check for convergence as the distance not changing from one iteration
             # to the next
-            dist[niter] = self.__get_dists__(X, Cent)
+            dist[niter] = np.sum(self.__get_dists__(X, Cent)**2)
             if dist[niter] == dist[niter - 1]:
                 converged = True
             niter += 1
@@ -74,6 +76,7 @@ class Kmeans(object):
         self.assignment = assignment
         self.dist = dist
         self.Cent = Cent
+        self.niter = niter
         # mark that we have fit our centers so that our algorithm will now
         # be able to make predictions
         self.has_fit = True
@@ -85,6 +88,7 @@ class Kmeans(object):
         We define a private version so that users can't get assignments for
         arbitrary centers.
         """
+        n = X.shape[1]
         return np.array([self.__predict__(X[:, i], Cent) for i in range(0, n)])
 
     def get_assignments(self, X):
@@ -105,12 +109,13 @@ class Kmeans(object):
         """
         A function to return the distance between a point and all of the centers.
         """
-        return np.array([distance.euclidian(x, c) for c in Cent])
+        return np.array([distance.euclidean(x, c) for c in Cent])
 
     def __get_dists__(self, X, Cent):
         """
         A function to return the distance to the closest center for each point.
         """
+        n = X.shape[1]
         return np.array([self.__dist__(X[:, i], Cent).min() for i in range(0, n)])
 
 
@@ -149,14 +154,13 @@ class Kmeans(object):
         using the strategy found: https://en.wikipedia.org/wiki/K-means%2B%2B.
         This strategy is called K-means++ initialization.
         """
+        X = self.X
         # our centers
         Cent = [X[:, np.random.randint(low=0, high=self.n)]]
-        for k in range(0, self.K):
+        for k in range(1, self.K):
             # array for the squared distances to closest nearby cluster per point
-            Ds = np.zeros(self.n)
-            for i in range(0, self.n):
-                # pick D[i] as the distance to the closest center already chosen
-                Ds[i] = np.array([distance.euclidian(X[:, i], c) for c in Cent]).min()**2
+            D = self.__get_dists__(X, Cent)
+            Ds = np.square(D)
             # choose a point at random given the probability distribution Dsquared
             # and define as our new center
             Ds = Ds/float(np.sum(Ds))
