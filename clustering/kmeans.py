@@ -65,7 +65,7 @@ class Kmeans(object):
 
             # check for convergence as the distance not changing from one iteration
             # to the next
-            dist[niter] = np.sum(np.array([self.__dist__(X[:, i], Cent).min() for i in range(0, n)]))
+            dist[niter] = self.__get_dists__(X, Cent)
             if dist[niter] == dist[niter - 1]:
                 converged = True
             niter += 1
@@ -102,7 +102,17 @@ class Kmeans(object):
         return self.__get_assignments__(X, self.Cent)
 
     def __dist__(self, x, Cent):
+        """
+        A function to return the distance between a point and all of the centers.
+        """
         return np.array([distance.euclidian(x, c) for c in Cent])
+
+    def __get_dists__(self, X, Cent):
+        """
+        A function to return the distance to the closest center for each point.
+        """
+        return np.array([self.__dist__(X[:, i], Cent).min() for i in range(0, n)])
+
 
     def __predict__(self, x, Cent):
         """
@@ -126,7 +136,7 @@ class Kmeans(object):
 
     def get_centers(self):
         """
-        A function to return the centers after initialization has taken place.
+        A function to return the centers at least after initialization has taken place.
         """
         if not self.has_init:
             raise ValueError('The centers have not been initialized yet.\n' +
