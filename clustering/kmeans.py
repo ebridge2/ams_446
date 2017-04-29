@@ -2,7 +2,7 @@ import numpy as np
 from scipy.spatial import distance
 
 
-class kmeans(object):
+class Kmeans(object):
     def __init__(self, K, max_iter=100):
         """
         A class that implements K-means clustering. Uses Kmeans++ for initialization.
@@ -149,7 +149,7 @@ class kmeans(object):
                 Ds[i] = np.array([distance.euclidian(X[:, i], c) for c in Cent]).min()**2
             # choose a point at random given the probability distribution Dsquared
             # and define as our new center
-            Cent.append(X[:, np.random.choice(range(0, self.n), p=Ds))]
+            Cent.append(X[:, np.random.choice(range(0, self.n), p=Ds)])
         self.Cent = Cent
         self.has_init = True
         pass

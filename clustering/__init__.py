@@ -1,2 +1,3 @@
-from spectral import spectral
-from kmeans import kmeans
+from spectral import Spectral
+from kmeans import Kmeans
+from kernel import Linear_kernel, RBF_kernel

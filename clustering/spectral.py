@@ -1,7 +1,7 @@
 import numpy as np
 
 
-class spectral(object):
+class Spectral(object):
     def __init__(self, dim, kernel, clust, method='Ng'):
         """
         A class for performing spectral clustering of a given dataset.
@@ -55,7 +55,7 @@ class spectral(object):
         if not self.has_fit:
             return ValueError('You have not fit a model yet.\n' +
                               ' try calling fit() first.')
-        
+        return 
 
     def __laplacian__(self):
         """
