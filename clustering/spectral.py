@@ -48,6 +48,14 @@ class spectral(object):
         elif self.method == 'Sch':
             self.__schiebinger_fit__()
         self.clust.fit(self.Y)
+        self.has_fit = True
+        pass
+
+    def get_assignments(self):
+        if not self.has_fit:
+            return ValueError('You have not fit a model yet.\n' +
+                              ' try calling fit() first.')
+        
 
     def __laplacian__(self):
         """
@@ -58,7 +66,7 @@ class spectral(object):
         A = np.zeros(self.n, self.n)
         for i in range(0, self.n):
             for j in range(0, self.n):
-                A[i, j] = self.kernel(X[:,i], X[:,j])
+                A[i, j] = self.kernel.dot(X[:,i], X[:,j])
         self.A = A
         D = np.sum(A, axis=1)*np.identity(self.F)
         Dpow = np.linalg.matrix_power(D, -0.5)
