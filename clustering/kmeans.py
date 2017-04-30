@@ -146,7 +146,7 @@ class Kmeans(object):
         if not self.has_init:
             raise ValueError('The centers have not been initialized yet.\n' +
                              'try using initialize() first.')
-        return self.Cent
+        return np.vstack(self.Cent).transpose()
 
     def __kmeanspp__(self):
         """

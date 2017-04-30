@@ -82,3 +82,21 @@ def purity(M, D):
     (cmtx, pmtx, fig_conf) = confusion_matrix(M, D)
     purity = np.sum(cmtx.max(axis=0))/float(np.sum(cmtx))
     return (purity, cmtx, pmtx, fig_conf)
+
+def plot_laplacian(L, cmap=plt.cm.jet):
+    """
+    A function to plot the graph laplacian for use with spectral
+    clustering visualizations.
+
+    **Positional Arguments:**
+        - L:
+            - the graph laplacian.
+    """
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    res = ax.imshow(L, cmap=cmap, interpolation='nearest')
+    ax.set_ylabel('Training Example')
+    ax.set_xlabel('Training Example')
+    ax.set_title('Graph Laplacian')
+    cb = fig.colorbar(res)
+    return fig

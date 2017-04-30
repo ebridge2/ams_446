@@ -23,7 +23,7 @@ class Linear_kernel(Kernel):
     """
     A class implementing a linear kernel.
     """
-    def __init(self):
+    def __init__(self):
         super(Kernel, self).__init__()
         pass
 
@@ -35,12 +35,11 @@ class RBF_kernel(Kernel):
     """
     A class implementing an RBF kernel.
     """
-    def __init(self, sigma):
+    def __init__(self, sigma):
         super(Kernel, self).__init__()
         self.sigma = sigma
         pass
 
     def dot(self, xi, xj):
-        exp = np.linalg.norm(xi - xj)**2/float(2*sigma**2)
+        exp = -np.linalg.norm(xi - xj)**2/float(2*self.sigma**2)
         return np.exp(exp)
-
