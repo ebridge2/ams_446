@@ -35,11 +35,12 @@ class RBF_kernel(Kernel):
     """
     A class implementing an RBF kernel.
     """
-    def __init__(self, sigma):
+    def __init__(self, sigma, norm=None):
         super(Kernel, self).__init__()
         self.sigma = sigma
+        self.norm = norm
         pass
 
     def dot(self, xi, xj):
-        exp = -np.linalg.norm(xi - xj)**2/float(2*self.sigma**2)
+        exp = -np.linalg.norm(xi - xj, self.norm)**2/float(2*self.sigma**2)
         return np.exp(exp)

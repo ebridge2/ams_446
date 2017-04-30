@@ -85,11 +85,11 @@ class Spectral(object):
         A function to implement the normalized Laplacian embedding of a dataset.
         """
         X = self._X
-        (self._F, self._n) = X.shape
+        self._n = X.shape[-1]
         A = np.zeros((self._n, self._n))
         for i in range(0, self._n):
             for j in range(0, self._n):
-                A[i, j] = self.kernel.dot(X[:,i], X[:,j])
+                A[i, j] = self.kernel.dot(X[...,i], X[...,j])
         self.A = A
         D = np.sum(A, axis=1)*np.identity(self._n)
         # D^(-.5) is the element wise reciprocal of the sqrt
