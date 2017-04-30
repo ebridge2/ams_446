@@ -3,20 +3,23 @@ from scipy.spatial import distance
 
 
 class Kmeans(object):
-    def __init__(self, K, max_iter=100):
+    def __init__(self, K, wt=False, max_iter=100):
         """
         A class that implements K-means clustering. Uses Kmeans++ for initialization.
 
         **Positional Arguments:**
-            - niter:
-                - the number of iterations for defining convergence. This is the
-                    maximum number of iterations kmeans will be run.
             - K:
                 - the number of clusters.
+            - wt:
+                - whether to use weighted or unweighted. Defaults to unweighted.
+            - max_iter:
+                - the number of iterations for defining convergence. This is the
+                    maximum number of iterations kmeans will be run.
         """
         self.K = K
         self.max_iter = max_iter
         self.has_fit = False
+        self.wt = wt
         self.has_init = False
         pass
 
@@ -37,12 +40,28 @@ class Kmeans(object):
 
     def fit(self):
         """
-        A function that uses the standard EM iterative approach
-        for k-means.
+        A function for fitting a k-means model given the initialized data.
         """
         if not self.has_init:
             raise ValueError('The centers have not been initialized yet.\n' +
                              'try using initialize() first.')
+        if not self.wt:
+            self.__unweighted_fit__()
+        else:
+            self.__weighted_fit__()
+        pass
+
+    def __weighted_fit__(self):
+        """
+        A function for weighted K-means.
+        """
+        raise ValueError('Unimplemented!')
+
+    def __unweighted_fit__(self):
+        """
+        A function that uses the standard EM iterative approach
+        for k-means.
+        """
         converged = False
 
         # we will need these a bunch, so might as well get them locally

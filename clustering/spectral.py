@@ -46,6 +46,7 @@ class Spectral(object):
         elif self.method == 'Bach':
             self.__bach_fit__()
         elif self.method == 'Sch':
+            raise ValueError('not implemented yet!')
             self.__schiebinger_fit__()
         self._clust.initialize(self._Y)
         self._clust.fit()
@@ -127,10 +128,9 @@ class Spectral(object):
         Uk = self.__laplacian__()
         # normalize so that the rows have unit length using matrices
         # for speed
-        # Unorm = np.linalg.norm(Uk, axis=1)*np.identity(self._n)
+        Unorm = np.linalg.norm(Uk, axis=1)*np.identity(self._n)
         # compute _Y and transpose it to get it into kxn
-        # self._Y = Uk.transpose().dot(np.linalg.pinv(Unorm))
-        self._Y = Uk.transpose()
+        self._Y = Uk.transpose().dot(np.linalg.pinv(Unorm))
         pass
 
     def __bach_fit__(self):
@@ -138,7 +138,7 @@ class Spectral(object):
         A function that implements kernalized spectral _clustering
         using the algorithm from Bach.
         """
-        self.__laplacian__()
+        Uk = self.__laplacian__()
         # find the first R eigenvectors
-        Ur = self.U[:, 0:self.k]
+        self._Y = Uk.transpose()
         pass
