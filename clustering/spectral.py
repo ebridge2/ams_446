@@ -48,8 +48,7 @@ class Spectral(object):
         elif self.method == 'Sch':
             raise ValueError('not implemented yet!')
             self.__schiebinger_fit__()
-        self._clust.initialize(self._Y)
-        self._clust.fit()
+
         self.has_fit = True
         pass
 
@@ -91,10 +90,11 @@ class Spectral(object):
             for j in range(0, self._n):
                 A[i, j] = self.kernel.dot(X[...,i], X[...,j])
         self.A = A
-        D = np.sum(A, axis=1)*np.identity(self._n)
+        d = np.sum(A, axis=1)  # degree array
+        D = np.reciprocal(np.sqrt(d))*np.identity(self._n)
+        self._d = d
         # D^(-.5) is the element wise reciprocal of the sqrt
-        Dpow = np.linalg.pinv(np.sqrt(D))
-        self._L = Dpow.dot(A).dot(Dpow)
+        self._L = D.dot(A).dot(D)
         # use the SVD instead of eig here since they are the
         # same for symmetric L, and the SVD will preorder our vectors
         # for us which eig does not
@@ -131,6 +131,8 @@ class Spectral(object):
         Unorm = np.linalg.norm(Uk, axis=1)*np.identity(self._n)
         # compute _Y and transpose it to get it into kxn
         self._Y = Uk.transpose().dot(np.linalg.pinv(Unorm))
+        self._clust.initialize(self._Y, d=self._d)
+        self._clust.fit()
         pass
 
     def __bach_fit__(self):
@@ -141,4 +143,6 @@ class Spectral(object):
         Uk = self.__laplacian__()
         # find the first R eigenvectors
         self._Y = Uk.transpose()
+        self._clust.initialize(self._Y, d=self._d)
+        self._clust.fit()
         pass
