@@ -23,7 +23,7 @@ class Kmeans(object):
         self.has_init = False
         pass
 
-    def initialize(self, X):
+    def initialize(self, X, d=None):
         """
         A function to initialize our kmeans instance, using kmeans++.
 
@@ -35,6 +35,11 @@ class Kmeans(object):
         self.X = X
         (self.F, self.n) = X.shape
         # initialize w Kmeans++
+        self._d = d
+        if self.wt:  # if user specified that they wanted weighted, they should
+                     # pass in d
+            if d is None:
+                raise ValueError('user specified weighted kmeans, but did not pass weights.')
         self.__kmeanspp__()
         pass
 
@@ -45,19 +50,10 @@ class Kmeans(object):
         if not self.has_init:
             raise ValueError('The centers have not been initialized yet.\n' +
                              'try using initialize() first.')
-        if not self.wt:
-            self.__unweighted_fit__()
-        else:
-            self.__weighted_fit__()
+        self.__fit__()
         pass
 
-    def __weighted_fit__(self):
-        """
-        A function for weighted K-means.
-        """
-        raise ValueError('Unimplemented!')
-
-    def __unweighted_fit__(self):
+    def __fit__(self):
         """
         A function that uses the standard EM iterative approach
         for k-means.
@@ -82,11 +78,11 @@ class Kmeans(object):
             assignment = self.__get_assignments__(X, Cent)
 
             # maximization step
-            Cent = [X[:, assignment == c].mean(axis=1) for c in range(0, K)]
+            Cent = self.__maximize_centers__(X, assignment, K)
 
             # check for convergence as the distance not changing from one iteration
             # to the next
-            dist[niter] = np.sum(self.__get_dists__(X, Cent)**2)
+            dist[niter] = self.__compute_distortion__(X, Cent)
             if dist[niter] == dist[niter - 1]:
                 converged = True
             niter += 1
@@ -109,6 +105,20 @@ class Kmeans(object):
         """
         n = X.shape[1]
         return np.array([self.__predict__(X[:, i], Cent) for i in range(0, n)])
+
+    def __maximize_centers__(self, X, assignment, K):
+        """
+        A function to maximize the centers on a given iteration of k-means.
+        """
+        if not self.wt:
+            Cent = [X[:, assignment == c].mean(axis=1) for c in range(0, K)]
+        else:
+            Cent = []
+            for c in range(0, K):
+                d_assigned = self._d[assignment == c]
+                num = X[:, assignment == c].dot(np.reciprocal(np.sqrt(d_assigned))*np.identity(len(d_assigned)))
+                Cent.append(num.sum(axis=1)/d_assigned.sum())
+        return Cent
 
     def get_assignments(self, X):
         """
@@ -135,8 +145,19 @@ class Kmeans(object):
         A function to return the distance to the closest center for each point.
         """
         n = X.shape[1]
+        if self.wt:  # if weighted, weight the points before finding centers
+            X = X.dot(np.reciprocal(np.sqrt(self._d))*np.identity(self.n))
         return np.array([self.__dist__(X[:, i], Cent).min() for i in range(0, n)])
 
+    def __compute_distortion__(self, X, Cent):
+        """
+        A function to compute the distortion metric, a potential convergence
+        criterion for Kmeans.
+        """
+        if not self.wt:
+            return np.sum(self.__get_dists__(X, Cent)**2)
+        else:
+            return self._d.dot(self.__get_dists__(X, Cent)**2)
 
     def __predict__(self, x, Cent):
         """
