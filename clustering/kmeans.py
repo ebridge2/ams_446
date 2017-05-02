@@ -116,7 +116,7 @@ class Kmeans(object):
             Cent = []
             for c in range(0, K):
                 d_assigned = self._d[assignment == c]
-                num = X[:, assignment == c].dot(np.reciprocal(np.sqrt(d_assigned))*np.identity(len(d_assigned)))
+                num = X[:, assignment == c].dot(np.sqrt(d_assigned)*np.identity(len(d_assigned)))
                 Cent.append(num.sum(axis=1)/d_assigned.sum())
         return Cent
 
