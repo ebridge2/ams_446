@@ -3,7 +3,7 @@
 Clone the Repository:
 
 ```
-https://github.com/ebridge2/ams_446.git
+git clone https://github.com/ebridge2/ams_446.git
 ```
 
 Once in the repository's directory:
